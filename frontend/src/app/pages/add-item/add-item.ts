@@ -102,8 +102,21 @@ export class AddItem {
       }
     }
 
+    // convert fields to formData for image upload
+    const formData = new FormData();
+    this.items.forEach((item, index) => {
+      formData.append(`items[${index}][title]`, item.title);
+      formData.append(`items[${index}][description]`, item.description);
+      formData.append(`items[${index}][qty]`, item.qty.toString());
+      formData.append(`items[${index}][price]`, item.price.toString());
+      formData.append(`items[${index}][date]`, item.date.toISOString());
+      if (item.image) {
+        formData.append(`items[${index}][image]`, item.image);
+      }
+    });
+
     // If all items are valid, proceed to save
-    this.itemService.saveItems(this.items).subscribe({
+    this.itemService.saveItems(formData).subscribe({
       next: () => {
         this.toast.success('Items saved successfully!');
         this.router.navigate(['/dashboard']);

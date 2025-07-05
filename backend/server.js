@@ -6,6 +6,8 @@ const jsonwebtoken = require('jsonwebtoken');
 // Middleware for authentication
 const auth = require('./middleware/auth');
 const app = express();
+const response = require('./utils/response');
+
 
 app.use(cors());
 app.use(json.json());
@@ -19,16 +21,33 @@ app.post('/login', (req, res) => {
   const { username, password } = req.body;
   if (username === 'admin' && password === 'password') {
     const token = jsonwebtoken.sign({ username }, SECRET, { expiresIn: '1h' });
-    res.json({ token });
+    return response(res, 200, 'Login successful', { token });
   } else {
-    res.status(401).json({ message: 'Invalid credentials' });
+    return response(res, 401, 'Invalid credentials', null);
   }
 });
 
 // Save Items Endpoint
 app.post('/save-item', auth(SECRET), (req, res) => {
-  items.push(...req.body.items);
-  res.json({ message: 'Items saved' });
+  const { title, description, qty, price, imageUrl, createdAt } = req.body;
+
+  if (!title || !description || !qty || !price) {
+    return response(res, 201, 'Missing required fields', null);
+  }
+
+  const newItem = {
+    id: Date.now().toString(),
+    title,
+    description,
+    qty,
+    price,
+    imageUrl: imageUrl || '',
+    createdAt: createdAt || new Date().toISOString()
+  };
+
+  items.push(newItem);
+  return response(res, 200, 'Item saved successfully', newItem);
+
 });
 
 // Get Items Endpoint
@@ -37,7 +56,7 @@ app.get('/get-items', auth(SECRET), (req, res) => {
   const pageSize = 10;
   const start = (page - 1) * pageSize;
   const paginatedItems = items.slice(start, start + pageSize);
-  res.json({ items: paginatedItems, total: items.length });
+  return response(res, 200, 'Items retrieved successfully', { items: paginatedItems, total: items.length });
 });
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

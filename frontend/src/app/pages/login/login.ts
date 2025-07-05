@@ -9,6 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ToastrService } from 'ngx-toastr';
+import { LoaderOverlay } from '../../shared/loader-overlay/loader-overlay';
 
 @Component({
   selector: 'app-login',
@@ -19,6 +20,7 @@ import { ToastrService } from 'ngx-toastr';
     MatButtonModule,
     MatFormFieldModule,
     MatCardModule,
+    LoaderOverlay
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',
@@ -27,6 +29,7 @@ export class Login {
   username = '';
   password = '';
   error = '';
+  isProcessing = false;
 
   constructor(
     private auth: Auth, 
@@ -40,13 +43,17 @@ export class Login {
   }
 
   login() {
+    this.isProcessing = true;
     this.auth.login({ username: this.username, password: this.password }).subscribe({
       next: (res: any) => {
-        localStorage.setItem('token', res.token);
+        localStorage.setItem('token', res.data.token);
+        this.isProcessing = false;
         this.toast.success('Login successful', 'Success');
         this.router.navigate(['/dashboard']);
       },
       error: () => this.error = 'Invalid credentials'
+    }).add(() => {
+      this.isProcessing = false;
     });
   }
 }

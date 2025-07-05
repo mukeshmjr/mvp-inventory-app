@@ -12,7 +12,7 @@ export class ItemService {
     return this.http.get(`${environment.apiUrl}/get-items?page=${page}`);
   }
 
-  saveItems(items: any[]) {
+  saveItems(items: any) {
     return this.http.post(`${environment.apiUrl}/save-item`, { items });
   }
 }
