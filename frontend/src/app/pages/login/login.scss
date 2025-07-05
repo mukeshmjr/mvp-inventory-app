@@ -1,5 +1,11 @@
-/* login.component.scss */
-
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: #fff;
+  background: linear-gradient(135deg, #f0fff0, #f5f7ff);
+}
 .login-card {
   max-width: 400px;
   margin: 80px auto;
@@ -7,6 +13,13 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  background: linear-gradient(135deg, #f8f9fa, #e0eafc);
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  color: #000;
 }
 
 .full-width {
@@ -16,4 +29,15 @@
 .error {
   color: red;
   text-align: center;
+}
+
+.compact-input .mat-form-field-infix {
+  padding: 0.25rem 0 !important;
+  min-height: 32px !important;
+}
+
+.compact-input .mat-input-element {
+  padding: 4px 8px !important;
+  font-size: 14px !important;
+  height: 32px !important;
 }

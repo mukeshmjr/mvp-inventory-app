@@ -9,10 +9,19 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatListModule } from '@angular/material/list';
-import { MatIcon, MatIconModule } from '@angular/material/icon';
-import { MatCellDef, MatHeaderCellDef, MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatDatepicker, MatDatepickerInput, MatDatepickerModule, MatDatepickerToggle } from '@angular/material/datepicker';
+import { MatIconModule } from '@angular/material/icon';
+import {
+  MatCellDef,
+  MatHeaderCellDef,
+  MatTableModule,
+} from '@angular/material/table';
+import {
+  MatDatepickerModule,
+  MatDatepickerToggle,
+} from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import moment from 'moment';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -26,31 +35,43 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatSnackBarModule,
     MatListModule,
     MatIconModule,
-    MatCellDef,
-    MatHeaderCellDef,
+    // MatCellDef,
+    // MatHeaderCellDef,
     MatTableModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatDatepickerToggle,
   ],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.scss'
+  styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit {
   // Define any properties or methods needed for the dashboard
-  items: any[] = [];
+  originalData: any[] = []; // for keeping original response
+  filteredData: any[] = [];
+  fallbackImage = "https://dummyimage.com/180x180/eeeeee/aaa&text=No+Image";
+
+
+
   page = 1;
   total = 0;
   filters = {
-  title: '',
-  createdDate: null as Date | null
-};
+    title: '',
+    createdDate: null as Date | null,
+  };
 
-  displayedColumns: string[] = ['image', 'title', 'description', 'qty', 'price', 'date'];
+  displayedColumns: string[] = [
+    'image',
+    'title',
+    'description',
+    'qty',
+    'price',
+    'date',
+  ];
 
   constructor(private itemService: ItemService, private router: Router) {
     // Initialize any properties if needed
-    this.items = [
+    this.filteredData = [
       {
         image: 'https://via.placeholder.com/60',
         title: 'Tomato Ketchup',
@@ -77,7 +98,7 @@ export class Dashboard implements OnInit {
 
   fetchItems() {
     this.itemService.getItems(this.page).subscribe((res: any) => {
-      this.items = res.items;
+      this.filteredData = res.items;
       this.total = res.total;
     });
   }
@@ -94,6 +115,10 @@ export class Dashboard implements OnInit {
     }
   }
 
+  onImageError(event: Event) {
+  (event.target as HTMLImageElement).src = this.fallbackImage;
+  }
+
   goToAddItem() {
     this.router.navigate(['/add-item']);
   }
@@ -104,19 +129,21 @@ export class Dashboard implements OnInit {
   }
 
   applyFilters() {
-  this.items = this.items.filter(item => {
-    const matchTitle = this.filters.title
-      ? item.title.toLowerCase().includes(this.filters.title.toLowerCase())
-      : true;
-    const matchCreatedDate = this.filters.createdDate
-      ? new Date(item.date) <= new Date(this.filters.createdDate)
-      : true;
+    if (!this.originalData.length) {
+      // If originalData is empty, we assume it has not been set yet
+      this.originalData = [...this.filteredData]; // Store the initial data
+    }
 
-    return matchTitle && matchCreatedDate;
-  });
+    this.filteredData = this.originalData.filter((item) => {
+      const matchTitle = this.filters.title
+        ? item.title.toLowerCase().includes(this.filters.title.toLowerCase())
+        : true;
 
-  this.page = 1; // reset to page 1 after filter
-}
+      const matchCreatedDate = this.filters.createdDate ? moment(this.filters.createdDate).isSame(moment(item.date), 'day')  : true;
 
+      return matchTitle && matchCreatedDate;
+    });
 
+    this.page = 1; // reset to page 1 after filter
+  }
 }

@@ -32,7 +32,12 @@ export class Login {
     private auth: Auth, 
     private router: Router,
     private toast: ToastrService,
-  ) {}
+  ) {
+    // redirect to dashboard if already logged in
+    if (this.auth.isLoggedIn()) {
+      this.router.navigate(['/dashboard']);
+    }
+  }
 
   login() {
     this.auth.login({ username: this.username, password: this.password }).subscribe({
