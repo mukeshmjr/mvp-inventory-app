@@ -1,0 +1,75 @@
+<div class="page-wrapper">
+  <div class="page-header">
+    <div class="page-title">
+      <h2>Add Item</h2>
+    </div>
+    <div class="page-actions">
+      <button mat-raised-button color="accent" class="logout-button" (click)="backToDashboard()">
+        <mat-icon>logOut</mat-icon> Home
+      </button>
+    </div>
+  </div>
+
+  <form #itemForm="ngForm" (ngSubmit)="save()" novalidate>
+    <div *ngFor="let item of items; let i = index" class="item-row">
+    <div class="form-row align-start">
+      <!-- Image Preview -->
+      <div class="image-preview" *ngIf="item.preview">
+        <img [src]="item.preview" alt="Preview" />
+      </div>
+
+      <!-- Styled File Input -->
+      <div class="file-upload-wrapper" *ngIf="!item.preview">
+        <label for="imageUpload{{ i }}" class="upload-label">Image</label>
+        <input type="file" id="imageUpload{{ i }}" (change)="onImageChange($event, i)" accept="image/*" class="file-input" />
+        <img class="upload-icon" src="assets/icons/upload.svg" alt="Upload Icon" />
+      </div>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Title</mat-label>
+      <input matInput [(ngModel)]="item.title" name="title{{ i }}" required #title="ngModel" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Description</mat-label>
+      <input matInput [(ngModel)]="item.description" name="desc{{ i }}" maxlength="250" required #desc="ngModel" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Qty</mat-label>
+      <input matInput type="number" [(ngModel)]="item.qty" name="qty{{ i }}" required #qty="ngModel" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Price (₹)</mat-label>
+      <input matInput type="number" [(ngModel)]="item.price" name="price{{ i }}" required #price="ngModel" />
+      <mat-error *ngIf="price.invalid && (price.dirty || formSubmitted)">
+          <span *ngIf="price.errors?.['required']">Price required.</span>
+          <span *ngIf="price.errors?.['min']">Min value is 0.</span>
+        </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Created Date</mat-label>
+      <input matInput [matDatepicker]="createdPicker" [(ngModel)]="item.date" name="date{{ i }}" required #date="ngModel" />
+      <mat-datepicker-toggle matSuffix [for]="createdPicker"></mat-datepicker-toggle>
+      <mat-datepicker #createdPicker></mat-datepicker>
+    </mat-form-field>
+
+    <!-- Action buttons -->
+    <div class="action-buttons">
+      <button *ngIf="i === 0" mat-icon-button color="primary" (click)="addField()" aria-label="Add item">
+        <mat-icon>add</mat-icon>
+      </button>
+      <button *ngIf="i !== 0" mat-icon-button color="warn" (click)="removeField(i)" aria-label="Remove item">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+  </form>
+
+  <div class="bottom-actions">
+    <button mat-raised-button color="primary" color="save-action" (click)="save()">💾 Save Items</button>
+  </div>
+</div>
