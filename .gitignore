@@ -13,3 +13,4 @@ jspm_packages/
 .npm
 # Optional eslint cache
 .eslintcache
+node_modules/

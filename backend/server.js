@@ -1,12 +1,14 @@
-import express from 'express';
-import cors from 'cors';
-import { json } from 'body-parser';
-import { sign } from 'jsonwebtoken';
-import auth from './middleware/auth';
+
+const express = require('express');
+const cors = require('cors'); // if used
+const json = require('body-parser');
+const jsonwebtoken = require('jsonwebtoken');
+// Middleware for authentication
+const auth = require('./middleware/auth');
 const app = express();
 
 app.use(cors());
-app.use(json());
+app.use(json.json());
 
 const PORT = 3000;
 const SECRET = 'secret123';
@@ -16,7 +18,7 @@ let items = [];
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   if (username === 'admin' && password === 'password') {
-    const token = sign({ username }, SECRET, { expiresIn: '1h' });
+    const token = jsonwebtoken.sign({ username }, SECRET, { expiresIn: '1h' });
     res.json({ token });
   } else {
     res.status(401).json({ message: 'Invalid credentials' });
