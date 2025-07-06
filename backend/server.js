@@ -10,8 +10,8 @@ require('dotenv').config(); // Load .env variables
 // App setup
 const app = express();
 // Environment variables
-const PORT = process.env.PORT || 3000;
-const SECRET = process.env.JWT_SECRET || 'secret123';
+const PORT = process.env.PORT;
+const SECRET = process.env.JWT_SECRET;
 const mongoURI = process.env.MONGO_URI;
 // Check if MONGO_URI is defined
 if (!mongoURI) {
@@ -39,14 +39,6 @@ const InventoryItem = require('./models/InventoryItem');
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
-
-// If you want to use a local MongoDB instance, uncomment the following lines
-
-// mongoose.connect('mongodb://localhost:27017/mvp-inventory', {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true
-// }).then(() => console.log('✅ MongoDB connected'))
-//   .catch(err => console.error('❌ MongoDB connection error:', err));
 
 // Middleware
 const allowedOrigins = [
