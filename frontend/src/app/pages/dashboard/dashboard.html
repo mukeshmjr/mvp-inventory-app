@@ -37,46 +37,8 @@
     </div>
   </div>
 
-  <!-- <table mat-table [dataSource]="filteredData" class="mat-elevation-z2 custom-table">
-
-    <ng-container matColumnDef="image">
-      <th mat-header-cell *matHeaderCellDef>Image</th>
-      <td mat-cell *matCellDef="let item">
-        <img [src]="item.image" alt="item image" class="thumb" />
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="title">
-      <th mat-header-cell *matHeaderCellDef>Title</th>
-      <td mat-cell *matCellDef="let item">{{ item.title }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="description">
-      <th mat-header-cell *matHeaderCellDef>Description</th>
-      <td mat-cell *matCellDef="let item">{{ item.description }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="qty">
-      <th mat-header-cell *matHeaderCellDef>Qty</th>
-      <td mat-cell *matCellDef="let item">{{ item.qty }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="price">
-      <th mat-header-cell *matHeaderCellDef>Price</th>
-      <td mat-cell *matCellDef="let item">₹{{ item.price }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="date">
-      <th mat-header-cell *matHeaderCellDef>Date</th>
-      <td mat-cell *matCellDef="let item">{{ item.date | date: 'mediumDate' }}</td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table> -->
-
   <div class="dashboard-list">
-  <div class="item-row" *ngFor="let item of filteredData | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage }">
+  <div class="item-row" *ngFor="let item of filteredData | paginate: { id: 'eventPaginate', itemsPerPage: itemsPerPage, currentPage: currentPage, totalItems: totalItems  }">
     <div class="item-image-container">
       <img [src]="item.image || fallbackImage" alt="Item Image" (error)="onImageError($event)" />
     </div>
@@ -101,12 +63,12 @@
   <div class="no-data" *ngIf="!isProgress && filteredData.length === 0">
     <p>No items found</p>
   </div>
-  <div class="table-panel-footer" [class.disabled]="isProgress" *ngIf="filteredData?.length !== 0">
-        <div class="table-panel-paginate">
-            <pagination-controls id="eventPaginate" class="gilariver-pagination" previousLabel="" nextLabel="" (pageChange)="goToPage($event)"></pagination-controls>
+  <div class="paging" *ngIf="filteredData?.length !== 0">
+        <div class="paging-left">
+            <pagination-controls id="eventPaginate" class="mvp-pagination" previousLabel="" nextLabel="" (pageChange)="goToPage($event)"></pagination-controls>
         </div>
-        <div class="table-panel-counts">
-            <div class="tpc-counts">
+        <div class="paging-right">
+            <div class="page-counts">
                 {{ currentPage }} to
                 <ng-container *ngIf="canGoToNext === true">
                     {{ itemsPerPage * currentPage }}
@@ -114,10 +76,7 @@
                 <ng-container *ngIf="canGoToNext == false">
                     {{ filteredData.length }}
                 </ng-container>
-                of {{ filteredData.length }} items
-            </div>
-            <div class="tpc-refresh ml-3">
-                <button class="btn btn-outline-dark" (click)="fetchItems()"><i class="fa fa-undo"></i></button>
+                of {{ totalItems }} items
             </div>
         </div>
   </div>

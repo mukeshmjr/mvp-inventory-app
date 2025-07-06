@@ -56,7 +56,8 @@ export class Dashboard implements OnInit {
   filteredData: any[] = [];
   fallbackImage = "https://dummyimage.com/180x180/eeeeee/aaa&text=No+Image";
   currentPage = 1;
-  totalPage = 0;
+  totalItems = 0;
+  totalPages = 0;
   itemsPerPage = 10;
   isProgress = false; // for showing loading state
   canGoToNext = false;
@@ -91,15 +92,18 @@ export class Dashboard implements OnInit {
     this.itemService.getItems(this.currentPage).subscribe(
       {
         next: (res: any) => {
+          this.isProgress = false; // Hide loading state
+          this.cdr.detectChanges();
           if (res && res.statusCode === 200) {
             this.originalData = res.data.items || [];
-            this.filteredData = [...this.originalData]; // Initialize filteredData with original data
-            this.totalPage = Math.ceil(this.originalData.length / this.itemsPerPage);
-            if (this.totalPage > 1) {
-              this.canGoToNext = true; // Enable next page if there are items
+            this.filteredData = this.originalData; // Initialize filteredData with original data
+            this.totalItems = res.data.total || 0;
+            this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+            console.log('Total Items:', this.totalItems);
+            console.log('Total Pages:', this.totalPages);
+            if (this.totalPages > 1) {
+              this.canGoToNext = true;
             }
-            this.isProgress = false; // Hide loading state
-            this.cdr.detectChanges(); // 🪄 force UI update
           } else {
             this.isProgress = false; // Hide loading state
             console.error('Error fetching items:', res.data.message);

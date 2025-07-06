@@ -115,3 +115,142 @@ ul li {
   font-size: 13px;
   margin-top: 4px;
 }
+
+// custom styles for pagination controls
+.paging {
+  display: flex;
+  margin: 20px 30px;
+  justify-content: space-between;
+  align-items: center;
+
+  .pagin-left,
+  .pagin-right {
+    display: flex;
+    align-items: center;
+  }
+
+  .paging-left {
+    width: 50%;
+  }
+
+  .mvp-pagination {
+    margin-bottom: 30px;
+    .ngx-pagination {
+      padding: 0;
+      margin: 0 -2.5px;
+      display: flex;
+      align-items: center;
+
+      >li {
+        margin: 0 2.5px;
+        background: transparent;
+      }
+
+      >li:not(.small-screen) {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        a {
+          height: 35px;
+          min-width: 35px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: #0476b0;
+          background-color: transparent;
+          border-radius: 0;
+
+          &:hover {
+            background-color: transparent;
+          }
+        }
+      }
+
+      .small-screen {
+        height: 35px;
+        min-width: 90px;
+        align-items: center;
+        justify-content: center;
+        color: #23272d;
+        background-color: transparent;
+        border-radius: 3px;
+        border: 1px solid rgba(0, 0, 0, 0.125);
+        padding: 0 10px;
+
+        @media screen and (max-width: 601px) {
+          display: inline-flex !important;
+        }
+      }
+
+      .current {
+        background: #fff;
+        color: #0a7ab3;
+        border-radius: 100px;
+        height: 33px;
+        min-width: 33px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 10px 0 #00000026;
+        border: 1px solid rgba(0, 0, 0, 0.125);
+      }
+
+      .current span.ng-star-inserted {
+        color: #0476b0;
+      }
+
+      .pagination-previous,
+      .pagination-next {
+        height: 35px;
+        min-width: 35px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 3px;
+      }
+
+      .disabled {
+        box-shadow: none;
+        background-color: transparent;
+        color: #6f9aaf;
+        border: 0;
+        pointer-events: none;
+      }
+
+      .pagination-previous a::before,
+      .pagination-previous.disabled::before {
+        content: "\f104";
+        font-family: FontAwesome;
+        margin: 0;
+        clip-path: polygon(50% 0, 0 25%, 50% 50%);
+        background: #0a7ab3;
+        position: relative;
+        top: 10px;
+        font-size: 25px;
+        width: 30px;
+      }
+
+      .pagination-next a::after,
+      .pagination-next.disabled::after {
+        content: "\f105";
+        font-family: FontAwesome;
+        margin: 0;
+        margin: 0;
+        clip-path: polygon(0 0, 0 50%, 50% 25%);
+        background: #0a7ab3;
+        position: relative;
+        top: 10px;
+        font-size: 25px;
+        width: 30px;
+      }
+    }
+
+    &.loading {
+      ul {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+    }
+  }
+}
