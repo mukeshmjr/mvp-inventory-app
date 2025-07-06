@@ -8,8 +8,9 @@ const auth = require('./middleware/auth');
 const app = express();
 const response = require('./utils/response');
 
-
-app.use(cors());
+// Middleware to enable CORS for the frontend
+app.use(cors({ origin: 'https://inventory-frontend.onrender.com' }));
+// Middleware to parse JSON bodies
 app.use(json.json());
 
 const PORT = 3000;

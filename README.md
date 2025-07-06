@@ -1,14 +1,11 @@
-# 📦 Angular Minimal Dashboard App
+# MVP Inventory App
 
-A minimalist full-stack dashboard app built using **Angular 20** and **Node.js**, featuring:
-- 🔐 Login screen with authentication
-- 📋 Dashboard listing with pagination
-- ➕ Add item form with image upload, validation, and preview
-- 🔍 Filter support for title and created date
+A full-stack inventory management application built with Angular 20 and Node.js, deployed on [Render](https://render.com).
 
-This project is designed as an MVP-ready base for admin dashboards, inventory systems, or product management tools.
+## 🔗 Live Demo
 
----
+- **Frontend**: [https://mvp-inventory-app.onrender.com](https://mvp-inventory-app.onrender.com)
+- **Backend API**: [https://inventory-backend-jwvu.onrender.com](https://inventory-backend-jwvu.onrender.com)
 
 ## 🚀 Features
 
@@ -23,6 +20,11 @@ This project is designed as an MVP-ready base for admin dashboards, inventory sy
 - ✅ **Search & Date Filter** on listing
 
 ---
+## 🛠️ Project Structure
+
+/frontend → Angular app (SPA)
+/backend → Node.js + Express API server
+render.yaml → Deployment config (for backend only)
 
 ## 🧰 Tech Stack
 
@@ -31,12 +33,6 @@ This project is designed as an MVP-ready base for admin dashboards, inventory sy
 | Angular 20 (Standalone) | Node.js + Express
 | Angular Material        | REST API (login, get-items, save-items)
 | ngx-toastr              | JSON-based in-memory store (for now)     |
-
----
-
-## 📸 Screenshots
-
-> _Add screenshots in a `/screenshots` folder if you'd like._
 
 ---
 
@@ -55,3 +51,45 @@ npm install
 # Run the frontend
 ng serve
 ```
+
+## 🚀 Deployment
+
+### Frontend
+
+- Angular app built with:
+```bash
+ng build --configuration production
+```
+
+Deployed as a static site on Render
+
+Publish directory: dist/frontend/browser
+
+## Backend
+Node.js app deployed on Render as a Web Service
+
+Start command:
+
+```bash
+node server.js
+```
+
+🌐 Environment Config
+In frontend/src/environments/environment.prod.ts:
+
+```bash 
+export const environment = {
+  production: true,
+  apiUrl: 'https://inventory-backend-jwvu.onrender.com'
+};
+```
+
+## 📸 Screenshots
+
+> _Add screenshots in a `/screenshots` folder if you'd like._
+
+---
+
+
+📄 License
+MIT © Mukesh Singh
