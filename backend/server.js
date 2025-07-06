@@ -33,7 +33,7 @@ if (!SECRET) {
 // Local imports
 const auth = require('./middleware/auth');
 const response = require('./utils/response');
-const InventoryItem = require('./models/InventoryItem');
+const InventoryItem = require('./models/inventoryItem');
 
 // MongoDB Connection using Mongoose and environment variable
 mongoose.connect(process.env.MONGO_URI)
