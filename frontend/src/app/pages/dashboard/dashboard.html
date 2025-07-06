@@ -1,3 +1,5 @@
+<app-loader-overlay [loading]="isProgress" text="Please wait..."></app-loader-overlay>
+
 <div class="page-wrapper">
   <div class="page-header">
     <div class="page-title">
@@ -74,9 +76,9 @@
   </table> -->
 
   <div class="dashboard-list">
-  <div class="item-row" *ngFor="let item of filteredData">
+  <div class="item-row" *ngFor="let item of filteredData | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage }">
     <div class="item-image-container">
-      <img [src]="item.imageUrl || fallbackImage" alt="Item Image" (error)="onImageError($event)" />
+      <img [src]="item.image || fallbackImage" alt="Item Image" (error)="onImageError($event)" />
     </div>
 
     <div class="item-info">
@@ -86,7 +88,7 @@
       <div class="meta">
         <span>Qty: {{ item.qty }}</span>
         <span>Price: ₹{{ item.price }}</span>
-        <span>Date: {{ item.createdAt | date:'mediumDate' }}</span>
+        <span>Date: {{ item.date | date:'mediumDate' }}</span>
       </div>
 
       <!-- <div class="actions">
@@ -96,12 +98,26 @@
     </div>
   </div>
 </div>
-  <div class="no-data" *ngIf="filteredData.length === 0">
+  <div class="no-data" *ngIf="!isProgress && filteredData.length === 0">
     <p>No items found</p>
   </div>
-  <div class="pagination-controls">
-    <button mat-button (click)="prevPage()" [disabled]="page === 1">Previous</button>
-    <span>Page {{ page }}</span>
-    <button mat-button (click)="nextPage()" [disabled]="filteredData.length < 10">Next</button>
+  <div class="table-panel-footer" [class.disabled]="isProgress" *ngIf="filteredData?.length !== 0">
+        <div class="table-panel-paginate">
+            <pagination-controls id="eventPaginate" class="gilariver-pagination" previousLabel="" nextLabel="" (pageChange)="goToPage($event)"></pagination-controls>
+        </div>
+        <div class="table-panel-counts">
+            <div class="tpc-counts">
+                {{ currentPage }} to
+                <ng-container *ngIf="canGoToNext === true">
+                    {{ itemsPerPage * currentPage }}
+                </ng-container>
+                <ng-container *ngIf="canGoToNext == false">
+                    {{ filteredData.length }}
+                </ng-container>
+                of {{ filteredData.length }} items
+            </div>
+            <div class="tpc-refresh ml-3">
+                <button class="btn btn-outline-dark" (click)="fetchItems()"><i class="fa fa-undo"></i></button>
+            </div>
+        </div>
   </div>
-</div>

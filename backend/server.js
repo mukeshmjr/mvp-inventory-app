@@ -1,63 +1,158 @@
-
 const express = require('express');
-const cors = require('cors'); // if used
-const json = require('body-parser');
-const jsonwebtoken = require('jsonwebtoken');
-// Middleware for authentication
-const auth = require('./middleware/auth');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
+const multer = require('multer');
+const path = require('path');
+require('dotenv').config(); // Load .env variables
+
+// App setup
 const app = express();
+// Environment variables
+const PORT = process.env.PORT || 3000;
+const SECRET = process.env.JWT_SECRET || 'secret123';
+const mongoURI = process.env.MONGO_URI;
+// Check if MONGO_URI is defined
+if (!mongoURI) {
+  console.error('❌ MONGO_URI is not defined in .env file');
+  process.exit(1);
+}
+// Check if PORT is defined
+if (!PORT) {
+  console.error('❌ PORT is not defined in .env file');
+  process.exit(1);
+}
+// Check if JWT_SECRET is defined
+if (!SECRET) {
+  console.error('❌ JWT_SECRET is not defined in .env file');
+  process.exit(1);
+}
+
+
+// Local imports
+const auth = require('./middleware/auth');
 const response = require('./utils/response');
+const InventoryItem = require('./models/InventoryItem');
 
-// Middleware to enable CORS for the frontend
-app.use(cors({ origin: 'https://inventory-frontend.onrender.com' }));
-// Middleware to parse JSON bodies
-app.use(json.json());
+// MongoDB Connection using Mongoose and environment variable
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
 
-const PORT = 3000;
-const SECRET = 'secret123';
-let items = [];
+// If you want to use a local MongoDB instance, uncomment the following lines
+
+// mongoose.connect('mongodb://localhost:27017/mvp-inventory', {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true
+// }).then(() => console.log('✅ MongoDB connected'))
+//   .catch(err => console.error('❌ MongoDB connection error:', err));
+
+// Middleware
+const allowedOrigins = [
+  'http://localhost:4200', // your dev frontend
+  'https://inventory-frontend-app.onrender.com' // deployed frontend
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true // optional, if sending cookies/auth headers
+}));
+
+app.use(bodyParser.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Multer storage config
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+const upload = multer({ storage });
+
+
+// ===========================================
+// ✅ ROUTES
+// ===========================================
 
 // Login Endpoint
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   if (username === 'admin' && password === 'password') {
-    const token = jsonwebtoken.sign({ username }, SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ username }, SECRET, { expiresIn: '1h' });
     return response(res, 200, 'Login successful', { token });
   } else {
     return response(res, 401, 'Invalid credentials', null);
   }
 });
 
-// Save Items Endpoint
-app.post('/save-item', auth(SECRET), (req, res) => {
-  const { title, description, qty, price, imageUrl, createdAt } = req.body;
+// Save Item Endpoint
+app.post('/save-items', auth(SECRET), async (req, res) => {
+  try {
+    const items = req.body;
 
-  if (!title || !description || !qty || !price) {
-    return response(res, 201, 'Missing required fields', null);
+    if (!Array.isArray(items) || items.length === 0) {
+      return response(res, 400, 'No items provided', null);
+    }
+
+    const preparedItems = items.map(item => ({
+      title: item.title,
+      description: item.description,
+      qty: Number(item.qty),
+      price: Number(item.price),
+      image: item.image || '',
+      date: item.date || new Date()
+    }));
+
+    const savedItems = await InventoryItem.insertMany(preparedItems);
+    return response(res, 200, 'Items saved successfully', savedItems);
+
+  } catch (err) {
+    return response(res, 500, 'Failed to save items', { error: err.message });
   }
-
-  const newItem = {
-    id: Date.now().toString(),
-    title,
-    description,
-    qty,
-    price,
-    imageUrl: imageUrl || '',
-    createdAt: createdAt || new Date().toISOString()
-  };
-
-  items.push(newItem);
-  return response(res, 200, 'Item saved successfully', newItem);
-
 });
+
 
 // Get Items Endpoint
-app.get('/get-items', auth(SECRET), (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const pageSize = 10;
-  const start = (page - 1) * pageSize;
-  const paginatedItems = items.slice(start, start + pageSize);
-  return response(res, 200, 'Items retrieved successfully', { items: paginatedItems, total: items.length });
+app.get('/get-items', auth(SECRET), async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = 10;
+    const skip = (page - 1) * pageSize;
+
+    const [items, total] = await Promise.all([
+      InventoryItem.find().skip(skip).limit(pageSize).sort({ date: -1 }),
+      InventoryItem.countDocuments()
+    ]);
+
+    return response(res, 200, 'Items retrieved successfully', { items, total });
+
+  } catch (err) {
+    return response(res, 500, 'Failed to fetch items', { error: err.message });
+  }
 });
 
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+// Upload Image Endpoint
+app.post('/upload-image', auth(SECRET), upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return response(res, 400, 'No file uploaded', null);
+  }
+
+  const imageUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`;
+  return response(res, 200, 'Image uploaded successfully', { imageUrl });
+});
+
+
+// ===========================================
+// ✅ Start Server
+// ===========================================
+app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));

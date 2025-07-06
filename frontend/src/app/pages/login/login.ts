@@ -7,9 +7,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { ToastrService } from 'ngx-toastr';
 import { LoaderOverlay } from '../../shared/loader-overlay/loader-overlay';
+import { Toast } from '../../services/toast';
 
 @Component({
   selector: 'app-login',
@@ -34,7 +33,7 @@ export class Login {
   constructor(
     private auth: Auth, 
     private router: Router,
-    private toast: ToastrService,
+    private toast: Toast,
   ) {
     // redirect to dashboard if already logged in
     if (this.auth.isLoggedIn()) {

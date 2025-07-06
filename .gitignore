@@ -3,6 +3,8 @@ frontend/dist
 frontend/.vscode
 frontend/.angular
 backend/node_modules
+backend/.env
+backend/uploads
 # Logs
 logs
 npm-debug.log*

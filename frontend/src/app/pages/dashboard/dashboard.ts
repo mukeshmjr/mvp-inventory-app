@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ItemService } from '../../services/item';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
+import { NgxPaginationModule } from 'ngx-pagination';
 import {
   MatCellDef,
   MatHeaderCellDef,
@@ -21,6 +22,8 @@ import {
 } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import moment from 'moment';
+import { LoaderOverlay } from "../../shared/loader-overlay/loader-overlay";
+import { Toast } from '../../services/toast';
 
 
 @Component({
@@ -41,7 +44,9 @@ import moment from 'moment';
     MatDatepickerModule,
     MatNativeDateModule,
     MatDatepickerToggle,
-  ],
+    NgxPaginationModule,
+    LoaderOverlay
+],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
@@ -50,11 +55,11 @@ export class Dashboard implements OnInit {
   originalData: any[] = []; // for keeping original response
   filteredData: any[] = [];
   fallbackImage = "https://dummyimage.com/180x180/eeeeee/aaa&text=No+Image";
-
-
-
-  page = 1;
-  total = 0;
+  currentPage = 1;
+  totalPage = 0;
+  itemsPerPage = 10;
+  isProgress = false; // for showing loading state
+  canGoToNext = false;
   filters = {
     title: '',
     createdDate: null as Date | null,
@@ -69,48 +74,64 @@ export class Dashboard implements OnInit {
     'date',
   ];
 
-  constructor(private itemService: ItemService, private router: Router) {
-    // Initialize any properties if needed
-    this.filteredData = [
-      {
-        image: 'https://via.placeholder.com/60',
-        title: 'Tomato Ketchup',
-        description: 'Fresh & Organic',
-        qty: 10,
-        price: 120,
-        date: new Date(),
-      },
-      {
-        image: 'https://via.placeholder.com/60',
-        title: 'Dry Mango Slices',
-        description: 'Sweet & Tangy',
-        qty: 25,
-        price: 300,
-        date: new Date(),
-      },
-      // Add more or fetch from API
-    ];
-  }
+  constructor(
+    private itemService: ItemService,
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private toast: Toast,
+  ) {  }
 
   ngOnInit() {
-    // this.fetchItems();
+    this.fetchItems();
   }
 
   fetchItems() {
-    this.itemService.getItems(this.page).subscribe((res: any) => {
-      this.filteredData = res.items;
-      this.total = res.total;
-    });
+    this.isProgress = true; // Show loading state
+    this.cdr.detectChanges(); // 🪄 force UI update
+    this.itemService.getItems(this.currentPage).subscribe(
+      {
+        next: (res: any) => {
+          if (res && res.statusCode === 200) {
+            this.originalData = res.data.items || [];
+            this.filteredData = [...this.originalData]; // Initialize filteredData with original data
+            this.totalPage = Math.ceil(this.originalData.length / this.itemsPerPage);
+            if (this.totalPage > 1) {
+              this.canGoToNext = true; // Enable next page if there are items
+            }
+            this.isProgress = false; // Hide loading state
+            this.cdr.detectChanges(); // 🪄 force UI update
+          } else {
+            this.isProgress = false; // Hide loading state
+            console.error('Error fetching items:', res.data.message);
+          }
+        },
+        error: (err) => {
+          this.isProgress = false; // Hide loading state
+          this.toast.error('Failed to fetch items', err.message); // Show error message
+        },
+      }).add(() => {
+        this.isProgress = false; // Ensure loading state is hidden after completion
+        this.cdr.detectChanges(); // 🪄 force UI update
+      });
+  }
+  
+  // Pagination methods
+  goToPage(e: any): void {
+    this.currentPage = e;
+    if (e === 1) {
+      this.currentPage = 1;
+    }
+    this.fetchItems();
   }
 
   nextPage() {
-    this.page++;
+    this.currentPage++;
     this.fetchItems();
   }
 
   prevPage() {
-    if (this.page > 1) {
-      this.page--;
+    if (this.currentPage > 1) {
+      this.currentPage--;
       this.fetchItems();
     }
   }
@@ -144,6 +165,6 @@ export class Dashboard implements OnInit {
       return matchTitle && matchCreatedDate;
     });
 
-    this.page = 1; // reset to page 1 after filter
+    this.currentPage = 1; // reset to page 1 after filter
   }
 }

@@ -38,16 +38,35 @@
 
 .pagination-controls {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   margin-top: 20px;
-  button {
-    margin-bottom: auto;
+  >div {
+    display: flex;
+    align-items: center;
+    width: 50%;
   }
-  span {
-    font-size: 16px;
-    font-weight: 500;
-    text-wrap: nowrap;
+  div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    button {
+      padding: 8px 12px;
+      border-radius: 6px;
+      background-color: #f0f0f0;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: #e0e0e0;
+      }
+
+      &.active {
+        background-color: #007bff;
+        color: white;
+      }
+    }
   }
 }
 
@@ -73,12 +92,12 @@
 }
 
 .item-image-container {
-  flex: 1 1 22 180px;
   overflow: hidden;
+  padding: 10px;
 }
 
 .item-image-container img {
-  width: 100%;
+  width: 110px;
   height: 100%;
   object-fit: cover;
 }
@@ -122,3 +141,67 @@
   font-size: 18px;
   color: #999;
 }
+
+.table-panel-footer {
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    border-top: 1px solid rgba(0, 0, 0, 0.125);
+
+    .table-panel-paginate {
+      display: flex;
+      align-items: center;
+
+      // @include media-breakpoint-down('480px') {
+      //   flex-wrap: wrap;
+      //   margin-bottom: 10px;
+      // }
+
+      .table-panel-limit {
+        margin-left: 10px;
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+
+        // @include media-breakpoint-down('480px') {
+        //   margin-left: 0;
+        //   width: 100%;
+        //   margin-top: 10px;
+        // }
+
+        select {
+          margin-right: 4px;
+          max-width: 100px;
+        }
+      }
+    }
+
+    .table-panel-counts {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+
+      .tpc-refresh {
+        margin-left: 15px;
+      }
+
+      // @include media-breakpoint-down('480px') {
+      //   .tpc-refresh {
+      //     margin-left: 0;
+
+      //     &.ml-3 {
+      //       margin-left: 0 !important;
+      //     }
+      //   }
+      // }
+    }
+
+    &.disabled {
+      * {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+    }
+  }

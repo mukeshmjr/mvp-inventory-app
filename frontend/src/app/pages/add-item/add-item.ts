@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { ItemService } from '../../services/item';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -7,11 +7,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { ToastrService } from 'ngx-toastr';
-import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatDatepickerModule, MatDatepickerToggle } from '@angular/material/datepicker';
+import {
+  MatDatepickerModule,
+  MatDatepickerToggle,
+} from '@angular/material/datepicker';
+import { Toast } from '../../services/toast';
 
 @Component({
   selector: 'app-add-item',
@@ -26,7 +28,7 @@ import { MatDatepickerModule, MatDatepickerToggle } from '@angular/material/date
     MatDatepickerModule,
     MatNativeDateModule,
     MatDatepickerToggle,
-],
+  ],
   templateUrl: './add-item.html',
   styleUrl: './add-item.scss',
 })
@@ -34,40 +36,47 @@ export class AddItem {
   formSubmitted = false;
 
   items = [
-  {
-    image: '',
-    preview: '',
-    title: '',
-    description: '',
-    qty: 1,
-    price: 0,
-    date: new Date()
-  }
-];
+    {
+      image: '',
+      title: '',
+      description: '',
+      qty: 1,
+      price: 0,
+      date: new Date(),
+    },
+  ];
 
   constructor(
     private itemService: ItemService,
     private router: Router,
-    private toast: ToastrService,
+    private toast: Toast,
+    private cdr: ChangeDetectorRef
   ) {}
 
   addField() {
     this.items.push({
-    image: '',
-    preview: '',
-    title: '',
-    description: '',
-    qty: 1,
-    price: 0,
-    date: new Date()
-  });
+      image: '',
+      title: '',
+      description: '',
+      qty: 1,
+      price: 0,
+      date: new Date(),
+    });
   }
 
   save() {
-    
     this.formSubmitted = true;
-    
-    if (this.items.some(item => !item.title || !item.description || item.qty <= 0 || item.price < 0 || !item.date)) {
+
+    if (
+      this.items.some(
+        (item) =>
+          !item.title ||
+          !item.description ||
+          item.qty <= 0 ||
+          item.price < 0 ||
+          !item.date
+      )
+    ) {
       this.toast.error('Please fill all fields correctly.');
       return;
     }
@@ -75,7 +84,7 @@ export class AddItem {
     // Validate each item
     for (const item of this.items) {
       // Check if required fields are filled
-      if (!item.title ) {
+      if (!item.title) {
         this.toast.error('Title field is required.');
         return;
       }
@@ -102,27 +111,19 @@ export class AddItem {
       }
     }
 
-    // convert fields to formData for image upload
-    const formData = new FormData();
-    this.items.forEach((item, index) => {
-      formData.append(`items[${index}][title]`, item.title);
-      formData.append(`items[${index}][description]`, item.description);
-      formData.append(`items[${index}][qty]`, item.qty.toString());
-      formData.append(`items[${index}][price]`, item.price.toString());
-      formData.append(`items[${index}][date]`, item.date.toISOString());
-      if (item.image) {
-        formData.append(`items[${index}][image]`, item.image);
-      }
-    });
-
     // If all items are valid, proceed to save
-    this.itemService.saveItems(formData).subscribe({
-      next: () => {
-        this.toast.success('Items saved successfully!');
-        this.router.navigate(['/dashboard']);
+    this.itemService.saveItems(this.items).subscribe({
+      next: (response: any) => {
+        if (response.statusCode === 200) {
+          this.toast.success('Items saved successfully!');
+          this.router.navigate(['/dashboard']);
+        } else {
+          this.toast.error(response.message || 'Failed to save items.');
+          console.error('Error saving items:', response);
+        }
       },
-      error: () => {
-        this.toast.error('Failed to save items. Please try again.');
+      error: (error) => {
+        this.toast.error('Error saving items. '+ error.message);
       },
     });
   }
@@ -136,15 +137,33 @@ export class AddItem {
   }
 
   onImageChange(event: any, index: number) {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.items[index].preview = reader.result as string;
-      this.items[index].image = file; // for backend upload if needed
-    };
-    reader.readAsDataURL(file);
+    const file = event.target.files[0];
+    if (!file) {
+      this.toast.error('No file selected.');
+      return;
+    }
+
+    // Show preview
+    // const reader = new FileReader();
+    // reader.onload = () => {
+    //   this.items[index].image = reader.result as string;
+    // };
+    // reader.readAsDataURL(file);
+
+    // Upload image to backend
+    this.itemService.fileUploader(file).subscribe({
+      next: (response) => {
+        this.items[index].image = response.data.imageUrl; // Assuming the response contains the image URL
+        this.cdr.detectChanges(); // 🪄 force UI update
+      },
+      error: () => {
+        this.toast.error('Failed to upload image. Please try again.');
+      },
+    });
   }
-}
+
+  onDateChange(event: any, index: number) {
+    this.items[index].date = event.value;
+  }
   
 }
