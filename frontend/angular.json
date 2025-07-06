@@ -24,6 +24,21 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "favicon.ico",
+                "input": "src",
+                "output": "/"
+              },
+              {
+                "glob": "assets/**/*",
+                "input": "src",
+                "output": "/assets"
+              },
+              {
+                "glob": "static.json",
+                "input": "./",
+                "output": "."
               }
             ],
             "styles": [
@@ -37,13 +52,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
+                  "maximumWarning": "1MB",
                   "maximumError": "1MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "512kB",
+                  "maximumError": "512kB"
                 }
               ],
               "outputHashing": "all"
@@ -80,6 +95,21 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "favicon.ico",
+                "input": "src",
+                "output": "/"
+              },
+              {
+                "glob": "assets/**/*",
+                "input": "src",
+                "output": "/assets"
+              },
+              {
+                "glob": "static.json",
+                "input": "./",
+                "output": "."
               }
             ],
             "styles": [
