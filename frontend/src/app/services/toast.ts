@@ -8,19 +8,19 @@ export class Toast {
 
   constructor(private toastr: ToastrService) { }
 
-  success(message: string, title = 'Success') {
+  success(message: string, title = '') {
     this.toastr.success(message, title);
   }
 
-  error(message: string, title = 'Error') {
+  error(message: string, title = '') {
     this.toastr.error(message, title);
   }
 
-  info(message: string, title = 'Info') {
+  info(message: string, title = '') {
     this.toastr.info(message, title);
   }
 
-  warning(message: string, title = 'Warning') {
+  warning(message: string, title = '') {
     this.toastr.warning(message, title);
   }
   
