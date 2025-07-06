@@ -12,8 +12,6 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { NgxPaginationModule } from 'ngx-pagination';
 import {
-  MatCellDef,
-  MatHeaderCellDef,
   MatTableModule,
 } from '@angular/material/table';
 import {
@@ -38,8 +36,6 @@ import { Toast } from '../../services/toast';
     MatSnackBarModule,
     MatListModule,
     MatIconModule,
-    // MatCellDef,
-    // MatHeaderCellDef,
     MatTableModule,
     MatDatepickerModule,
     MatNativeDateModule,
@@ -51,7 +47,6 @@ import { Toast } from '../../services/toast';
   styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit {
-  // Define any properties or methods needed for the dashboard
   originalData: any[] = []; // for keeping original response
   filteredData: any[] = [];
   fallbackImage = "https://dummyimage.com/180x180/eeeeee/aaa&text=No+Image";
@@ -99,8 +94,6 @@ export class Dashboard implements OnInit {
             this.filteredData = this.originalData; // Initialize filteredData with original data
             this.totalItems = res.data.total || 0;
             this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
-            console.log('Total Items:', this.totalItems);
-            console.log('Total Pages:', this.totalPages);
             if (this.totalPages > 1) {
               this.canGoToNext = true;
             }

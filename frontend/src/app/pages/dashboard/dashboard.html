@@ -69,14 +69,9 @@
         </div>
         <div class="paging-right">
             <div class="page-counts">
-                {{ currentPage }} to
-                <ng-container *ngIf="canGoToNext === true">
-                    {{ itemsPerPage * currentPage }}
-                </ng-container>
-                <ng-container *ngIf="canGoToNext == false">
-                    {{ filteredData.length }}
-                </ng-container>
-                of {{ totalItems }} items
-            </div>
+  {{ (currentPage - 1) * itemsPerPage + 1 }} to
+  {{ currentPage * itemsPerPage > totalItems ? totalItems : currentPage * itemsPerPage }}
+  of {{ totalItems }} items
+</div>
         </div>
   </div>
