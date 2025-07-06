@@ -9,12 +9,3 @@ services:
     envVars:
       - key: PORT
         value: 3000
-
-  - type: static
-    name: inventory-frontend
-    buildCommand: npm install && npx ng build --configuration=production
-    publishDir: dist
-    rootDir: frontend
-    envVars:
-      - key: NG_CLI_ANALYTICS
-        value: false
