@@ -18,8 +18,14 @@ export class ItemService {
     };
   }
 
-  getItems(page = 1) {
-    return this.http.get(`${environment.apiUrl}/get-items?page=${page}`, this.getAuthHeaders());
+  getItems(payload: any) {
+    // convert payload to query parameters
+    const params = new URLSearchParams();
+    if (payload.page) params.append('page', payload.page);
+    if (payload.limit) params.append('limit', payload.limit);
+    if (payload.title) params.append('title', payload.title);
+    if (payload.createdDate) params.append('createdDate', payload.createdDate);
+    return this.http.get(`${environment.apiUrl}/get-items?${params.toString()}`, this.getAuthHeaders());
   }
 
   saveItems(items: any) {

@@ -116,12 +116,25 @@ app.post('/save-items', auth(SECRET), async (req, res) => {
 app.get('/get-items', auth(SECRET), async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const pageSize = 10;
-    const skip = (page - 1) * pageSize;
+    const pageSize = parseInt(req.query.limit) || 10;
+    const title = req.query.title || '';
+    const createdDate = req.query.createdDate ? new Date(req.query.createdDate) : null
+    const filter = {};
+    if (title) {
+      filter.title = { $regex: title, $options: 'i' }; // case-insensitive search
+    }
+    if (createdDate) {
+      filter.date = {
+        $gte: new Date(createdDate.setHours(0, 0, 0, 0)),
+        $lt: new Date(createdDate.setHours(23, 59, 59, 999))
+      };
+    }
 
+    const skip = (page - 1) * pageSize;
+    // Execute both queries in parallel
     const [items, total] = await Promise.all([
-      InventoryItem.find().skip(skip).limit(pageSize).sort({ date: -1 }),
-      InventoryItem.countDocuments()
+      InventoryItem.find(filter).skip(skip).limit(pageSize).sort({ date: -1 }),
+      InventoryItem.countDocuments(filter)
     ]);
 
     return response(res, 200, 'Items retrieved successfully', { items, total });

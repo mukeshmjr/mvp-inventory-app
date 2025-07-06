@@ -1,5 +1,7 @@
-<app-loader-overlay [loading]="isProgress" text="Please wait..."></app-loader-overlay>
-
+<div *ngIf="isProgress" class="overlay">
+  <mat-spinner diameter="48"></mat-spinner>
+  <p class="loading-text">Processing...</p>
+</div>
 <div class="page-wrapper">
   <div class="page-header">
     <div class="page-title">
@@ -64,14 +66,15 @@
     <p>No items found</p>
   </div>
   <div class="paging" *ngIf="filteredData?.length !== 0">
-        <div class="paging-left">
-            <pagination-controls id="eventPaginate" class="mvp-pagination" previousLabel="" nextLabel="" (pageChange)="goToPage($event)"></pagination-controls>
-        </div>
-        <div class="paging-right">
-            <div class="page-counts">
-  {{ (currentPage - 1) * itemsPerPage + 1 }} to
-  {{ currentPage * itemsPerPage > totalItems ? totalItems : currentPage * itemsPerPage }}
-  of {{ totalItems }} items
-</div>
-        </div>
+    <div class="paging-left">
+      <pagination-controls id="eventPaginate" class="mvp-pagination" previousLabel="" nextLabel=""
+        (pageChange)="goToPage($event)"></pagination-controls>
+    </div>
+    <div class="paging-right">
+      <div class="page-counts">
+        {{ (currentPage - 1) * itemsPerPage + 1 }} to
+        {{ currentPage * itemsPerPage > totalItems ? totalItems : currentPage * itemsPerPage }}
+        of {{ totalItems }} items
+      </div>
+    </div>
   </div>

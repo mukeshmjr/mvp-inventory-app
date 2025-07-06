@@ -20,8 +20,8 @@ import {
 } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import moment from 'moment';
-import { LoaderOverlay } from "../../shared/loader-overlay/loader-overlay";
 import { Toast } from '../../services/toast';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 
 @Component({
@@ -41,7 +41,7 @@ import { Toast } from '../../services/toast';
     MatNativeDateModule,
     MatDatepickerToggle,
     NgxPaginationModule,
-    LoaderOverlay
+    MatProgressSpinnerModule
 ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
@@ -84,7 +84,13 @@ export class Dashboard implements OnInit {
   fetchItems() {
     this.isProgress = true; // Show loading state
     this.cdr.detectChanges(); // 🪄 force UI update
-    this.itemService.getItems(this.currentPage).subscribe(
+    let payload = {
+      page: this.currentPage,
+      limit: this.itemsPerPage,
+      title: this.filters.title || '',
+      createdDate: this.filters.createdDate ? moment(this.filters.createdDate).format('DD-MM-YYYY') : null,
+    };
+    this.itemService.getItems(payload).subscribe(
       {
         next: (res: any) => {
           this.isProgress = false; // Hide loading state
@@ -146,6 +152,7 @@ export class Dashboard implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  // local filter methods
   applyFilters() {
     if (!this.originalData.length) {
       // If originalData is empty, we assume it has not been set yet
@@ -161,7 +168,13 @@ export class Dashboard implements OnInit {
 
       return matchTitle && matchCreatedDate;
     });
+  }
 
-    this.currentPage = 1; // reset to page 1 after filter
+  // filter to use server side
+  applyServerFilters() {
+    this.isProgress = true; // Show loading state
+    this.cdr.detectChanges(); // 🪄 force UI update
+    this.currentPage = 1; // Reset to first page
+    this.fetchItems();
   }
 }
