@@ -13,6 +13,7 @@ const app = express();
 const PORT = process.env.PORT;
 const SECRET = process.env.JWT_SECRET;
 const mongoURI = process.env.MONGO_URI;
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN;
 // Check if MONGO_URI is defined
 if (!mongoURI) {
   console.error('❌ MONGO_URI is not defined in .env file');
@@ -41,21 +42,18 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
 // Middleware
-const allowedOrigins = [
-  'http://localhost:4200', // your dev frontend
-  'https://inventory-frontend-app.onrender.com' // deployed frontend
-];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true // optional, if sending cookies/auth headers
-}));
+app.use(cors());
+// const allowedOrigins = ['http://localhost:4200', FRONTEND_ORIGIN];
+// app.use(cors({
+//   origin: function (origin, callback) {
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   credentials: true // optional, if sending cookies/auth headers
+// }));
 
 app.use(bodyParser.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
